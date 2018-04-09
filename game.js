@@ -2,25 +2,48 @@ new p5();
 
 //width and height
 var canvasX = 500;
-var canvasY = 1020;
+//var canvasY = 1020;
+
+var canvasY =  window.innerHeight
+|| document.documentElement.clientHeight
+|| document.body.clientHeight;
+
+var enemyShipYSpeed = 8;
 
 //point of canvas
 var canvasPosX;
 var canvasPosY;
 
+var active = true;
+
+document.addEventListener('visibilitychange', function(){
+	if (active)
+	{
+    	clearInterval(timerId);
+    	active = false;
+	}
+    else
+    {
+    	timerId =  setInterval(function(){let elm = new EnemyPlane(); ships.push(elm)} ,2000);
+    }
+
+})
+
 //events
-var timerId = setInterval(function(){let elm = new EnemyPlane(); ships.push(elm)} ,2000);
+var timerId = setInterval(function(){let elm = new EnemyPlane(); ships.push(elm); shipsSpawned++;} ,2000);
 
 //moving objects
 var boss = null;
 var ships = [];
 var bullets = [];
-
+var rocket;
 //loaded images
 var img;
 var hp;
 var canvasBack;
 var scoreElem;
+
+var shipsSpawned = 0;
 
 //background y for scrolling
 var background1Y = -330;
@@ -35,7 +58,6 @@ class Player{
 		this.width = 60;
 		this.height = 80;
 		this.hp = 3;
-		this.killsLeft = 15;
 		this.hpX = [canvasX - 70, canvasX - 50, canvasX - 30];
 		this.score = 0;
 	}
@@ -46,18 +68,35 @@ class Player{
 			return;
 
 		for (var i = 0; i < ships.length; i++) {
+			if (ships[i].hp<=0)
+				continue;
 			if (checkCollision(ships[i].x, ships[i].y, ships[i].width, ships[i].height, this.x, this.y, this.width, this.height))
 	  		{
-	  			ships[i].y = -500;
+	  			ships[i].hp = 0;
 		 		this.hp--;
-		 		plr.killsLeft--;
+		 		this.score-=100;
 	  		}
 		}
 	}
 
 	draw()
 	{
-		image(img, this.x, this.y);
+		switch (this.hp)
+		{
+			case 3:
+				image(img, this.x, this.y);
+				break;
+			case 2:
+				image(img1, this.x, this.y);
+				break;
+			case 1: 
+				image(img2, this.x, this.y);
+				break;
+			case 0: 
+				image(img3, this.x, this.y);
+				break;
+		}
+		
 	}
 
 	
@@ -84,22 +123,29 @@ class EnemyPlane{
 		this.width = 149;
 		this.x = random(0, canvasX - this.width);
 		this.y = 20;
-		this.hp = 12;
+		this.hp = 8;
+		this.toDraw = 30;
 	}
 
 	draw()
 	{
-		if (this.hp>=0 && this.hp<=4 )
+		if (this.hp<=0)
+		{
 			image(enemy2, this.x, this.y);
-		if (this.hp>=5 && this.hp<=9 )
+			if (this.toDraw==0)
+				this.y = -1000;
+			else
+				this.toDraw--;
+		}
+		if (this.hp>=1 && this.hp<=4 )
 			image(enemy1, this.x, this.y);
-		if (this.hp>=10 && this.hp<=12 )
+		if (this.hp>=5 && this.hp<=8 )
 			image(enemy0, this.x, this.y);
 	}
 
 	updateCoords()
 	{
-		this.y+=6;
+		this.y+=8;
 	}
 
 	bulletsCollide()
@@ -112,10 +158,8 @@ class EnemyPlane{
 				this.hp--;
 				if (this.hp == 0)
 				{
-					plr.killsLeft--;
 					plr.score += 250;
 					scoreElem.html("Счёт: "+plr.score);
-					this.y = -1000;
 				}
 
 			}
@@ -133,13 +177,14 @@ class Boss{
 		this.height = 300;
 		this.hp = 100 ;
 		this.bossVector = "RIGHT";
+		rocket = new Rocket(this.x, this.y, this.width);
 	}
 
 	draw()
 	{
-		if (this.hp <= 20)
+		if (this.hp <= 10)
 			image(boss5,this.x,this.y);
-		if (this.hp>20 && this.hp<= 40)
+		if (this.hp>10 && this.hp<= 40)
 			image(boss4,this.x,this.y);
 		if (this.hp>40 && this.hp<= 60)
 			image(boss3,this.x,this.y);
@@ -149,10 +194,20 @@ class Boss{
 			image(boss1,this.x,this.y);
 		if (this.hp == 100)
 			image(boss0,this.x,this.y);
+		rocket.draw();
+		rocket.move();
 	}
 
 	updateCoords()
 	{
+		if (this.y > canvasY)
+			message('ПРОТИВНИК СБЕЖАЛ. ПОБЕДА!');
+
+		if (this.hp<=10)
+		{
+			this.y +=25;
+			return;
+		}
 		this.y +=0.05;
 		switch(this.bossVector)
 		{
@@ -187,6 +242,18 @@ class Boss{
 			}
 		}
 	}
+
+	actorCollide()
+	{
+		if (checkCollision(this.x, this.y+this.height, this.width, 1, plr.x, plr.y, plr.width, plr.height))
+			{
+				plr.hp==0;
+				if (this.hp<=0)
+				{
+					message("ВЫ ПРОИГРАЛИ!");
+				}
+			}
+	}
 }
 
 class Bullet
@@ -207,7 +274,52 @@ class Bullet
  		stroke('#ffd700');
  		rect(this.x, this.y, 1, 10);
 	}
-}
+ }
+
+ class Rocket
+ {
+ 	constructor(x,y,width)
+	{
+		this.x = x+(width/2)+10.5;
+		this.y = y+310;
+		this.active = true;
+	}
+
+	move()
+	{
+		if (checkCollision(this.x, this.y+87, 21, 1, plr.x, plr.y, plr.width, plr.height))
+		{
+			this.x = boss.x+(boss.width/2)-10.5;
+			plr.hp--;
+			this.y = boss.y+310;
+		}
+
+		if (this.y > canvasY && this.active)
+		{
+			this.x = boss.x+(boss.width/2)+10.5;
+			this.y = boss.y+310;
+			return;
+
+		}
+		this.y += 20;
+	}
+
+	draw()
+	{
+		if (boss.hp<=10)
+		{
+			this.active = false;
+			this.y = 1000;
+		}
+		image(rck,this.x,this.y);
+	}
+	
+
+
+
+
+ } 
+
 
 var plr = new Player();
 
@@ -225,6 +337,10 @@ function setup(){
 	
 
 	img = loadImage('mainActor.png');
+	img1 = loadImage('mainActor1.png');
+	img2 = loadImage('mainActor2.png');
+	img3 = loadImage('mainActor3.png');
+
 	canvasBack = loadImage('canvas.jpg');
 	hp = loadImage('hp.png');
 
@@ -239,6 +355,8 @@ function setup(){
 	enemy1 = loadImage('enemy1.png');
 	enemy2 = loadImage('enemy2.png');
 
+	rck = loadImage('rck.png');
+
 	frameRate(60);
 }
 
@@ -249,11 +367,10 @@ function draw()
 	ships = ships.filter(ship => ship.y >= 0 && ship.y <= canvasY+50);
 	bullets = bullets.filter(bullet => bullet.y >= 0);
 	scrollBackground();
-	plr.draw();
+	
 	plr.drawHp();
-	console.log(plr.score);
 	move();
-	if (plr.killsLeft == 0 && boss == null)
+	if (shipsSpawned==15 && boss == null)
 	{
 		boss = new Boss();
 		clearInterval(timerId);
@@ -269,17 +386,19 @@ function draw()
   		element.updateCoords();
   		element.bulletsCollide();
 	});
-
+	plr.draw(); 
+	
 	if (boss!=null)
 	{
 		boss.draw();
 		boss.updateCoords();
 		boss.bulletsShip();
+		boss.actorCollide();
 		noStroke();
-		color(65);
+		fill(65);
 		rect(boss.x, boss.y-15, boss.width, 10);
 		var size = boss.width/100*boss.hp;
-		color('#ED2939');
+		fill('#ED2939');
 		rect(boss.x, boss.y-15, size, 10);
 	}
 	
@@ -304,14 +423,16 @@ function message(text)
 	print(canvasX + ":" + canvasY + "-" + canvasPosX + ":" + canvasPosY);
 	div = createDiv();
 	div.id("rect");
-	div.position(canvasPosX+10, 200);
+	var size = (canvasY-350)/2;
+	//div.position(canvasPosX+10, 200);
+	div.position(canvasPosX+10, size);
 	button = createButton('Начать заново');
-	button.position(canvasPosX+50, 400);
+	button.position(canvasPosX+50, size+200);
 	button.mousePressed(function(){location.reload();});
 	button.id("btn");
 	p = createP(text);
 	p.id("title");
-	p.position(canvasPosX+50, 250);
+	p.position(canvasPosX+50, size+50);
 }
 
 
@@ -326,12 +447,14 @@ function move()
 	  }
 }
 
+
 function keyPressed()
 {
 	if (keyCode==32)
 	{
 		plr.shoot();
 	}
+
 }
 
 function checkCollision(obj1X, obj1Y, obj1Width, obj1Height, obj2X, obj2Y, obj2Width, obj2Height)
