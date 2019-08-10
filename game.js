@@ -208,7 +208,7 @@ class Boss{
 			this.y +=25;
 			return;
 		}
-		this.y +=0.05;
+		this.y += 0.05;
 		switch(this.bossVector)
 		{
 			case "LEFT":
@@ -313,11 +313,6 @@ class Bullet
 		}
 		image(rck,this.x,this.y);
 	}
-	
-
-
-
-
  } 
 
 
@@ -336,26 +331,26 @@ function setup(){
     scoreElem.style('color', 'white');
 	
 
-	img = loadImage('mainActor.png');
-	img1 = loadImage('mainActor1.png');
-	img2 = loadImage('mainActor2.png');
-	img3 = loadImage('mainActor3.png');
+	img = loadImage('./assets/character/mainActor.png');
+	img1 = loadImage('./assets/character/mainActor1.png');
+	img2 = loadImage('./assets/character/mainActor2.png');
+	img3 = loadImage('./assets/character/mainActor3.png');
 
-	canvasBack = loadImage('canvas.jpg');
-	hp = loadImage('hp.png');
+	canvasBack = loadImage('./assets/additional/canvas.jpg');
+	hp = loadImage('./assets/additional/hp.png');
 
-	boss0 = loadImage('boss0.png');
-	boss1 = loadImage('boss1.png');
-	boss2 = loadImage('boss2.png');
-	boss3 = loadImage('boss3.png');
-	boss4 = loadImage('boss4.png');
-	boss5 = loadImage('boss5.png');
+	boss0 = loadImage('./assets/boss/boss0.png');
+	boss1 = loadImage('./assets/boss/boss1.png');
+	boss2 = loadImage('./assets/boss/boss2.png');
+	boss3 = loadImage('./assets/boss/boss3.png');
+	boss4 = loadImage('./assets/boss/boss4.png');
+	boss5 = loadImage('./assets/boss/boss5.png');
 
-	enemy0 = loadImage('enemy0.png');
-	enemy1 = loadImage('enemy1.png');
-	enemy2 = loadImage('enemy2.png');
+	enemy0 = loadImage('./assets/enemy/enemy0.png');
+	enemy1 = loadImage('./assets/enemy/enemy1.png');
+	enemy2 = loadImage('./assets/enemy/enemy2.png');
 
-	rck = loadImage('rck.png');
+	rck = loadImage('./assets/additional/rocket.png');
 
 	frameRate(60);
 }
@@ -454,7 +449,6 @@ function keyPressed()
 	{
 		plr.shoot();
 	}
-
 }
 
 function checkCollision(obj1X, obj1Y, obj1Width, obj1Height, obj2X, obj2Y, obj2Width, obj2Height)
@@ -469,7 +463,3 @@ function checkCollision(obj1X, obj1Y, obj1Width, obj1Height, obj2X, obj2Y, obj2W
   		return true;
   	return false;
 }
-
-
- 
-

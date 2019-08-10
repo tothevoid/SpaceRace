@@ -1,8 +1,7 @@
-    body {
-  background: url("back.jpg");
+body {
+  background: url("/assets//additional/back.jpg");
   background-repeat: no-repeat;
 }
-
 
 #btn{
 	background-color: black;
@@ -27,11 +26,11 @@
 }
 
 #title{
-	 color: white;
-	 font-size: 40px;
-	 font-family: 'IBM Plex Serif', serif;
-	 text-align: center;
-	 width: 400px
+    color: white;
+    font-size: 40px;
+    font-family: 'IBM Plex Serif', serif;
+    text-align: center;
+    width: 400px
 }
 #rect{
 	border: solid 3px white; 
