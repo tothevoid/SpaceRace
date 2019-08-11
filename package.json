@@ -1,0 +1,9 @@
+{
+    "name": "space-race",
+    "description": "simple js game",
+    "scripts": {
+        "dev": "webpack -w --config webpack.dev.js"
+    },
+    "author": "tothevoid",
+    "dependencies": {}
+}
