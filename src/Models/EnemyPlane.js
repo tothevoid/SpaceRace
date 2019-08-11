@@ -6,7 +6,7 @@ export class EnemyPlane{
 	{
 		this.height = 123;
 		this.width = 149;
-		this.x = Math.random(0, canvasX - this.width);
+		this.x = canvas.random(0, canvasX - this.width);
 		this.y = 20;
 		this.hp = 8;
         this.toDraw = 30;
@@ -39,7 +39,7 @@ export class EnemyPlane{
 
 	bulletsCollide(bullets, onDead)
 	{
-		for (var i = 0; i < bullets.length; i++)
+		for (let i = 0; i < bullets.length; i++)
 		{
 			if (checkCollision(bullets[i].x, bullets[i].y, 1, 1, this.x, this.y+this.height-10, this.width, 10))
 			{

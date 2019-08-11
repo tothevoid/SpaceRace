@@ -1,27 +1,30 @@
 import {Player} from './Models/Player';
 import {EnemyPlane} from "./Models/EnemyPlane"
 import {Boss} from "./Models/Boss"
-// import {p5} from 'p5'
+
 import p5 from "p5";
 import * as p5dom from "p5/lib/addons/p5.dom" 
-// new p5();
+
 //width and height
-var canvasX = 500;
-var canvasY = window.innerHeight
+//TODO: resize and min width/support
+const canvasX = 500;
+const canvasY = window.innerHeight
 || document.documentElement.clientHeight
 || document.body.clientHeight;
 
 //point of canvas
-var canvasPosX;
-var canvasPosY;
+let canvasPosX;
+let canvasPosY;
 
 const move = (canvas, plr) =>
 {
-	if (canvas.keyIsDown(canvas.LEFT_ARROW)&&plr.x!=0) {
+	if (canvas.keyIsDown(canvas.LEFT_ARROW) && 
+		plr.x!=0) {
 		plr.x -= 5;
 	}
 
-	if (canvas.keyIsDown(canvas.RIGHT_ARROW)&&plr.x!=canvasX-plr.width) {
+	else if (canvas.keyIsDown(canvas.RIGHT_ARROW) && 
+		plr.x != canvasX-plr.width) {
 		plr.x += 5;
 	}
 }
@@ -40,7 +43,7 @@ const mainFunc = (sk) => {
 	let background1Y = -330;
 	let background2Y = -1680;
 	
-	var shipsSpawned = 0;
+	let shipsSpawned = 0;
 	let timer;
 
 	const createEnemyPlane = (canvas, enemy0, enemy1, enemy2) => {
@@ -67,7 +70,7 @@ const mainFunc = (sk) => {
 		scoreElem.innerHTML = "";
 		let div = sk.createDiv();
 		div.id("rect");
-		var size = (canvasY-350)/2;
+		const size = (canvasY-350)/2;
 		div.position(canvasPosX+10, size);
 		let button = sk.createButton('Try again');
 		button.position(canvasPosX+50, size+200);
@@ -78,7 +81,6 @@ const mainFunc = (sk) => {
 		p.position(canvasPosX+50, size+50);
 	}
 
-	
 	sk.setup = () => {
 		var cnv = sk.createCanvas(canvasX,canvasY);
 		canvasPosX = 600;
@@ -122,10 +124,10 @@ const mainFunc = (sk) => {
 
 		rck = sk.loadImage('./assets/additional/rocket.png');
 
-		var img = sk.loadImage('./assets/character/mainActor.png');
-		var img1 = sk.loadImage('./assets/character/mainActor1.png');
-		var img2 = sk.loadImage('./assets/character/mainActor2.png');
-		var img3 = sk.loadImage('./assets/character/mainActor3.png');
+		const img = sk.loadImage('./assets/character/mainActor.png');
+		const img1 = sk.loadImage('./assets/character/mainActor1.png');
+		const img2 = sk.loadImage('./assets/character/mainActor2.png');
+		const img3 = sk.loadImage('./assets/character/mainActor3.png');
 		plr = new Player(sk, canvasX, canvasY, img, img1, img2, img3);
 		sk.frameRate(60);
 	}
@@ -171,7 +173,7 @@ const mainFunc = (sk) => {
 			boss.draw(plr);
 			boss.updateCoords(displayMessage);
 			boss.bulletsShip(plr.bullets, displayMessage);
-			boss.actorCollide(plr);
+			boss.checkActorCollision(plr, displayMessage);
 			sk.noStroke();
 			sk.fill(65);
 			sk.rect(boss.x, boss.y-15, boss.width, 10);

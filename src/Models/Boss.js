@@ -12,7 +12,7 @@ export class Boss{
         this.canvasY = canvasY;
 		this.height = 300;
 		this.hp = 100 ;
-        this.bossVector = "RIGHT";
+        this.isMovingRight = false;
         this.canvas = canvas;
 		this.rocket = new Rocket(canvas, this.x, this.y, this.width, rck);
         this.boss0 = boss0;
@@ -27,13 +27,13 @@ export class Boss{
 	{
 		if (this.hp <= 10)
 			this.canvas.image(this.boss5,this.x,this.y);
-		else if (this.hp>10 && this.hp<= 40)
+		else if (this.hp>10 && this.hp <= 40)
             this.canvas.image(this.boss4,this.x,this.y);
-		else if (this.hp>40 && this.hp<= 60)
+		else if (this.hp>40 && this.hp <= 60)
             this.canvas.image(this.boss3,this.x,this.y);
-		else if (this.hp>60 && this.hp<=80)
+		else if (this.hp>60 && this.hp <=80)
             this.canvas.image(this.boss2,this.x,this.y);
-		else if (this.hp>80 && this.hp<=99)
+		else if (this.hp>80 && this.hp <=99)
             this.canvas.image(this.boss1,this.x,this.y);
 		else if (this.hp == 100)
             this.canvas.image(this.boss0,this.x,this.y);
@@ -52,33 +52,35 @@ export class Boss{
 			return;
 		}
 		this.y += 0.05;
-		switch(this.bossVector)
+		if (this.isMovingRight)
 		{
-			case "LEFT":
-				if (this.x >=2)
-					this.x -= 2;
-				else
-					this.bossVector="RIGHT";
-				break;
-			case "RIGHT":
-				if (this.x <=300)
-					this.x += 2;
-				else
-					this.bossVector="LEFT";
-				break;
-		}
+			if (this.x <=300){
+				this.x += 2;
+			} else {
+				this.isMovingRight = !this.isMovingRight;
+			}
+		} else {
+			if (this.x >=2){
+				this.x -= 2;
+			} else{
+				this.isMovingRight = !this.isMovingRight;
+			}
+		}		
 	}
 
 	bulletsShip(bullets, displayFunc)
 	{
-		for (var i = 0; i < bullets.length; i++)
+		for (let i = 0; i < bullets.length; i++)
 		{
-			if (checkCollision(this.x, this.y+this.height, this.width, 1, bullets[i].x, bullets[i].y, this.width, this.height))
+			if (checkCollision(this.x, this.y+this.height,
+				this.width, 1,
+				bullets[i].x, bullets[i].y,
+				this.width, this.height))
 			{
 				bullets[i].y = -100;
 				bullets[i].x = -100;
 				this.hp--;
-				if (this.hp<=0)
+				if (this.hp <= 0)
 				{
 					displayFunc("You won!");
 				}
@@ -86,14 +88,17 @@ export class Boss{
 		}
 	}
 
-	actorCollide(plr)
+	checkActorCollision(plr, displayFunc)
 	{
-		if (checkCollision(this.x, this.y+this.height, this.width, 1, plr.x, plr.y, plr.width, plr.height))
+		if (checkCollision(this.x, this.y+this.height, 
+			this.width, 1,
+			plr.x, plr.y,
+			plr.width, plr.height))
 			{
 				plr.hp = 0;
-				if (this.hp<=0)
+				if (this.hp <= 0)
 				{
-					displayMessage("You've lost!");
+					displayFunc("You've lost!");
 				}
 			}
 	}

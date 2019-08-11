@@ -25,7 +25,7 @@ export class Player{
 		if (ships.length==0)
 			return;
 
-		for (var i = 0; i < ships.length; i++) {
+		for (let i = 0; i < ships.length; i++) {
 			if (ships[i].hp<=0)
 				continue;
 			
