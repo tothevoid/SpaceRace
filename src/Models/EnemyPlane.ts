@@ -1,4 +1,5 @@
 import {checkCollision} from "../helper"
+import { Bullet } from "./Bullet";
 
 export class EnemyPlane{
 	height = 123;
@@ -6,54 +7,54 @@ export class EnemyPlane{
 	x: number;
 	y: number;
 	hp: number;
-	toDraw: number;
+	deathVisibilityFrames: number;
 
 	constructor(private canvas: any,
-		private canvasX: number,
-		private enemy0: any, 
-		private enemy1: any,
-		private enemy2: any)
+		canvasX: number,
+		private images: any[])
 	{
 		this.x = canvas.random(0, canvasX - this.width);
-		this.y = 20;
+		this.y = -1 * this.width;
 		this.hp = 8;
-        this.toDraw = 30;
+        this.deathVisibilityFrames = 60;
 	}
 
 	draw()
 	{
-		if (this.hp<=0)
-		{
-			this.canvas.image(this.enemy2, this.x, this.y);
-			if (this.toDraw==0)
-				this.y = -1000;
-			else
-				this.toDraw--;
+		let imageIndex = 2;
+		if (this.hp >= 5) imageIndex = 0;
+		else if (this.hp >= 1) imageIndex = 1;
+		else {
+			this.deathVisibilityFrames --;
 		}
-		if (this.hp >= 1 && this.hp <= 4)
-			this.canvas.image(this.enemy1, this.x, this.y);
-		if (this.hp >= 5 && this.hp <= 8)
-			this.canvas.image(this.enemy0, this.x, this.y);
+		if (imageIndex >= 0 && this.images &&
+			imageIndex + 1 <= this.images.length){
+			this.canvas.image(this.images[imageIndex], this.x, this.y);
+		}
 	}
 
 	updateCoords()
 	{
-		this.y+=8;
+		this.y += 8;
 	}
 
-	bulletsCollide(bullets, onDead)
+	bulletsCollide(bullets: any[], onDead: () => void): Bullet[]
 	{
-		for (let i = 0; i < bullets.length; i++)
-		{
-			if (checkCollision(bullets[i].x, bullets[i].y, 1, 1, this.x, this.y+this.height-10, this.width, 10))
+		return bullets.filter((bullet: Bullet) => {
+			var result = true;
+			if (checkCollision(bullet.x, bullet.y,
+				1, 1,
+				this.x, this.y + this.height-10,
+				this.width, 10))
 			{
-				bullets[i] = -100;
 				this.hp--;
-				if (this.hp == 0)
+				if (this.hp === 0)
 				{
                     onDead();
 				}
+				result = false;
 			}
-		}	
+			return result;
+		})
 	}
 }

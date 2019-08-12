@@ -39,10 +39,10 @@ const move = (canvas: any, plr: Player) =>
 
 const mainFunc = (sk) => {
 	let active = true;
-	let ships = [];
+	let ships: EnemyPlane[] = [];
 	let plr: Player;
 	let bossAssets = [];
-	// let boss0, boss1, boss2, boss3, boss4, boss5, rck;
+	let enemyAssets = [];
 	let boss, rck;
 	let enemy0, enemy1, enemy2;
 
@@ -55,8 +55,8 @@ const mainFunc = (sk) => {
 	let shipsSpawned = 0;
 	let timer;
 
-	const createEnemyPlane = (canvas, enemy0, enemy1, enemy2) => {
-		let elm = new EnemyPlane(canvas, canvasX, enemy0, enemy1, enemy2);
+	const createEnemyPlane = () => {
+		let elm = new EnemyPlane(sk, canvasX, enemyAssets);
 		shipsSpawned+=1;
 		ships.push(elm);
 	}
@@ -99,21 +99,13 @@ const mainFunc = (sk) => {
 		scoreElem.id = 'score';
 		scoreElem.style('color', 'white');
 
-		enemy0 = sk.loadImage('./assets/enemy/enemy0.png');
-		enemy1 = sk.loadImage('./assets/enemy/enemy1.png');
-		enemy2 = sk.loadImage('./assets/enemy/enemy2.png');
-
 		timer = setInterval(()=>
-			createEnemyPlane(sk, enemy0, enemy1, enemy2), 2000);
+			createEnemyPlane(), 2000);
 
-		const loadAssets = (name: string, quantity: number) => {
-			let output = [];
-			//TODO: Fix
-			[0,1,2,3,4,5].forEach((_,index)=>{
-				output.push(sk.loadImage(`${name}${index}.png`));
-			})
-			return output;
-		}
+		const loadAssets = (name: string, quantity: number) => 
+			Array.apply(null, new Array(quantity))
+				.map((_: number,index: number)=>
+					sk.loadImage(`${name}${index}.png`));	
 
 		document.addEventListener('visibilitychange', function(){
 			if (active && timer)
@@ -124,7 +116,7 @@ const mainFunc = (sk) => {
 			else
 			{
 				timer = setInterval(()=>
-					createEnemyPlane(sk, enemy0, enemy1, enemy2), 2000);
+					createEnemyPlane(), 2000);
 			}
 		});
 
@@ -132,13 +124,8 @@ const mainFunc = (sk) => {
 		hp = sk.loadImage('./assets/additional/hp.png');
 
 		bossAssets = loadAssets("./assets/boss/boss", 6);
-		// boss0 = sk.loadImage('./assets/boss/boss0.png');
-		// boss1 = sk.loadImage('./assets/boss/boss1.png');
-		// boss2 = sk.loadImage('./assets/boss/boss2.png');
-		// boss3 = sk.loadImage('./assets/boss/boss3.png');
-		// boss4 = sk.loadImage('./assets/boss/boss4.png');
-		// boss5 = sk.loadImage('./assets/boss/boss5.png');
-
+		enemyAssets = loadAssets("./assets/enemy/enemy", 3);
+		
 		rck = sk.loadImage('./assets/additional/rocket.png');
 
 		const img = sk.loadImage('./assets/character/mainActor.png');
@@ -151,7 +138,8 @@ const mainFunc = (sk) => {
 	sk.draw = () => {
 		if (plr.hp == 0)
 			displayMessage("You've lost");
-		ships = ships.filter(ship => ship.y >= 0 && ship.y <= canvasY+50);
+		ships = ships.filter((ship: EnemyPlane) => 
+			!(ship.deathVisibilityFrames <= 0 && ship.hp <= 0));
 		plr.bullets = plr.bullets.filter(bullet => bullet.y >= 0);
 		scrollBackground();
 		
@@ -171,20 +159,21 @@ const mainFunc = (sk) => {
 			element.move();
 		});
 
-		const onDead = ()=> {
+		const onDead = () => {
 			plr.score += 250;
 			scoreElem.html("Счёт: "+plr.score);	
 		}
 
-		ships.forEach(function(element) {
-			element.draw(onDead);
-			element.updateCoords();
-			element.bulletsCollide(plr.bullets, onDead);
+		ships.forEach((enemy: EnemyPlane) => {
+			enemy.draw();
+			enemy.updateCoords();
+			plr.bullets = enemy.
+				bulletsCollide(plr.bullets, onDead);
 		});
 
 		plr.draw(); 
 		
-		if (boss!=null)
+		if (boss)
 		{
 			boss.draw(plr);
 			boss.updateCoords(canvasX, displayMessage);
