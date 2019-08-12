@@ -3,12 +3,12 @@ const path = require('path');
 module.exports = {
     mode: 'development',
     devtool: 'inline-source-map',
-    entry: ['./src/game.js'],
+    entry: ['./src/game.ts'],
     module: {
         rules: [
             {
-                test: /\.js?$/,
-                // use: 'ts-loader',
+                test: /\.tsx?$/,
+                use: 'ts-loader',
                 exclude: /node_modules/
             }
         ]
