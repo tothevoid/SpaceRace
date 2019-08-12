@@ -41,10 +41,11 @@ const mainFunc = (sk) => {
 	let active = true;
 	let ships: EnemyPlane[] = [];
 	let plr: Player;
+	let boss: Boss
 	let bossAssets = [];
 	let enemyAssets = [];
-	let boss, rck;
-	let enemy0, enemy1, enemy2;
+	let playerAssets = []
+	let rck;
 
 	let hp, canvasBack, scoreElem;
 
@@ -94,7 +95,7 @@ const mainFunc = (sk) => {
 		var cnv = sk.createCanvas(canvasX,canvasY);
 		cnv.position(canvasPosX, canvasPosY);
 		
-		scoreElem = sk.createDiv('Score: 00000');
+		scoreElem = sk.createDiv('Score: 0');
 		scoreElem.position(canvasPosX+20, 20);
 		scoreElem.id = 'score';
 		scoreElem.style('color', 'white');
@@ -125,14 +126,10 @@ const mainFunc = (sk) => {
 
 		bossAssets = loadAssets("./assets/boss/boss", 6);
 		enemyAssets = loadAssets("./assets/enemy/enemy", 3);
-		
+		playerAssets = loadAssets("./assets/character/mainActor", 4);		
 		rck = sk.loadImage('./assets/additional/rocket.png');
 
-		const img = sk.loadImage('./assets/character/mainActor.png');
-		const img1 = sk.loadImage('./assets/character/mainActor1.png');
-		const img2 = sk.loadImage('./assets/character/mainActor2.png');
-		const img3 = sk.loadImage('./assets/character/mainActor3.png');
-		plr = new Player(sk, canvasX, canvasY, img, img1, img2, img3);
+		plr = new Player(sk, canvasX, canvasY, playerAssets);
 		sk.frameRate(60);
 	}
 	sk.draw = () => {
@@ -147,13 +144,17 @@ const mainFunc = (sk) => {
 			sk.image(hp, plr.hpX[i], 20);
 		}
 
+		const updateScore = (score: number) => {
+			scoreElem.html(`Score: ` + score);
+		}
+
 		move(sk, plr);
 		if (!boss && shipsSpawned === 5)
 		{
 			boss = new Boss(sk, canvasX, canvasY, bossAssets, rck);
 			clearInterval(timer);
 		}
-		plr.enemyCollideCheck(ships);
+		plr.enemyCollideCheck(ships, updateScore);
 		plr.bullets.forEach(function(element) {
 			element.draw();
 			element.move();
@@ -161,7 +162,7 @@ const mainFunc = (sk) => {
 
 		const onDead = () => {
 			plr.score += 250;
-			scoreElem.html("Счёт: "+plr.score);	
+			updateScore(plr.score);	
 		}
 
 		ships.forEach((enemy: EnemyPlane) => {

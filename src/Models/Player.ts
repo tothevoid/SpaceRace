@@ -1,5 +1,6 @@
 import {Bullet} from './Bullet'
 import {checkCollision} from "../helper"
+import { EnemyPlane } from './EnemyPlane';
 
 export class Player{
 
@@ -15,10 +16,7 @@ export class Player{
 	constructor(private canvas: any,
 		canvasX: number,
 		canvasY: number, 
-		private img: any,
-		private img1: any,
-		private img2: any,
-		private img3: any)
+		private images: any[])
 	{
 		this.x = canvasX/2;
 		this.y = canvasY-100;
@@ -30,48 +28,37 @@ export class Player{
 		this.bullets = [];
 	}
 
-	enemyCollideCheck(ships)
+	enemyCollideCheck(ships: EnemyPlane[], updateScore: (score: number) => void)
 	{
-		if (ships.length==0)
-			return;
-
-		for (let i = 0; i < ships.length; i++) {
-			if (ships[i].hp<=0)
-				continue;
-			
-			if (checkCollision(ships[i].x, ships[i].y, ships[i].width, ships[i].height, this.x, this.y, this.width, this.height))
+		if (ships.length === 0) return;
+		ships.forEach((ship: EnemyPlane) => {
+			if (ship.hp <= 0) return;
+			if (checkCollision(ship.x, ship.y,
+				ship.width, ship.height,
+				this.x, this.y,
+				this.width, this.height))
 	  		{
-	  			ships[i].hp = 0;
+	  			ship.hp = 0;
 		 		this.hp--;
-		 		this.score-=100;
+				this.score -= 100;
+				updateScore(this.score); 
 	  		}
-		}
+		})
 	}
 
 	draw()
 	{
-		switch (this.hp)
-		{
-			case 3:
-				this.canvas.image(this.img, this.x, this.y);
-				break;
-			case 2:
-				this.canvas.image(this.img1, this.x, this.y);
-				break;
-			case 1: 
-				this.canvas.image(this.img2, this.x, this.y);
-				break;
-			case 0: 
-				this.canvas.image(this.img3, this.x, this.y);
-				break;
+		const imageIndex = 3 - this.hp;
+		if (imageIndex >= 0 && this.images &&
+			imageIndex + 1 <= this.images.length){
+			this.canvas.image(this.images[imageIndex], this.x, this.y);	
 		}
-		
 	}
 
 	shoot()
 	{
 		this.bullets.push(
-			new Bullet(this.canvas, this.x + 5, this.y -4));
+			new Bullet(this.canvas, this.x + 5, this.y - 4));
 		this.bullets.push(
 			new Bullet(this.canvas, this.x + this.width - 7, this.y -4));
 	}
