@@ -7,16 +7,24 @@ import "p5/lib/addons/p5.dom"
 
 //width and height
 //TODO: resize and min width/support
-const canvasX = 500;
 const canvasY = window.innerHeight
 || document.documentElement.clientHeight
 || document.body.clientHeight;
 
-//point of canvas
-let canvasPosX;
-let canvasPosY;
+const screenWidth = window.innerWidth
+|| document.documentElement.clientWidth
+|| document.body.clientWidth;
 
-const move = (canvas, plr) =>
+const minCanvasWidth = 500;
+const canvasX = (screenWidth < minCanvasWidth) ?
+	screenWidth : minCanvasWidth;
+
+//point of canvas
+let canvasPosX = (screenWidth > canvasX) ? 
+	(screenWidth - canvasX) / 2: screenWidth; 
+let canvasPosY = 0;
+
+const move = (canvas: any, plr: Player) =>
 {
 	if (canvas.keyIsDown(canvas.LEFT_ARROW) && 
 		plr.x!=0) {
@@ -32,7 +40,7 @@ const move = (canvas, plr) =>
 const mainFunc = (sk) => {
 	let active = true;
 	let ships = [];
-	let plr;
+	let plr: Player;
 	let bossAssets = [];
 	// let boss0, boss1, boss2, boss3, boss4, boss5, rck;
 	let boss, rck;
@@ -84,8 +92,6 @@ const mainFunc = (sk) => {
 
 	sk.setup = () => {
 		var cnv = sk.createCanvas(canvasX,canvasY);
-		canvasPosX = 600;
-		canvasPosY = 0;
 		cnv.position(canvasPosX, canvasPosY);
 		
 		scoreElem = sk.createDiv('Score: 00000');
@@ -181,7 +187,7 @@ const mainFunc = (sk) => {
 		if (boss!=null)
 		{
 			boss.draw(plr);
-			boss.updateCoords(displayMessage);
+			boss.updateCoords(canvasX, displayMessage);
 			plr.bullets = boss
 				.checkBulletsCollision(plr.bullets, displayMessage);
 			boss.checkActorCollision(plr, displayMessage);

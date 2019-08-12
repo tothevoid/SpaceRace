@@ -13,92 +13,71 @@ export class Boss{
 	private rocket: Rocket;
 
 	constructor(private canvas: any,
-		public canvasX: number,
+		canvasX: number,
 		public canvasY: number,
-		public images: any[], rocketImage)
+		public images: any[], rocketImage: any)
 	{
-		this.x = canvasX/2;
+		this.x = canvasX / 2;
 		this.y = 20;
         this.width = 168;
-        this.canvasX = canvasX;
-        this.canvasY = canvasY;
 		this.height = 300;
-		this.hp = 100 ;
+		this.hp = 100;
         this.isMovingRight = false;
-        this.canvas = canvas;
 		this.rocket = new Rocket(canvas, this.x, this.y, 
 			this.width, rocketImage);
 		this.images = images;
     }
 
-	draw(plr: Player)
+	draw(player: Player)
 	{
 		let imageIndex = 0
-		//TODO: optimize
-		if (this.hp <= 10) imageIndex = 5;
-		else if (this.hp>10 && this.hp <= 40) imageIndex = 4;
-		else if (this.hp>40 && this.hp <= 60) imageIndex = 3;
-		else if (this.hp>60 && this.hp <=80) imageIndex = 2;
-		else if (this.hp>80 && this.hp <=99) imageIndex = 1;
+	
+		if (this.hp > 80) imageIndex = 1;
+		else if (this.hp > 60) imageIndex = 2;
+		else if (this.hp > 40) imageIndex = 3;
+		else if (this.hp > 10) imageIndex = 4;
+		else if (this.hp >= 0) imageIndex = 5;
 
-		if (this.images && imageIndex >= 0 &&
+ 		if (this.images && imageIndex >= 0 &&
 			imageIndex + 1 <= this.images.length){
 			this.canvas.image(this.images[imageIndex], this.x, this.y);
 		}
 		this.rocket.draw(this.hp);
-		this.rocket.move(plr, this, this.canvasY);
+		this.rocket.move(player, this, this.canvasY);
 		this.drawHpBar();
 	}
 
-	updateCoords(displayFunc: (text: string)=>void)
+	updateCoords(canvasWidth: number, displayFunc: (text: string)=>void)
 	{
 		if (this.y > this.canvasY)
 			displayFunc("The boss has ran out. You won!");
 
-		if (this.hp <= 10)
-		{
-			this.y += 10;
-			return;
+		this.y += (this.hp <= 10) ? 10: 0.05;
+		if (this.x + this.width >= canvasWidth || this.x <= 0){
+			this.isMovingRight = !this.isMovingRight;
 		}
-		this.y += 0.05;
-		if (this.isMovingRight)
-		{
-			//TODO: canvas width
-			if (this.x <= 300){
-				this.x += 2;
-			} else {
-				this.isMovingRight = !this.isMovingRight;
-			}
-		} else {
-			if (this.x >=2){
-				this.x -= 2;
-			} else{
-				this.isMovingRight = !this.isMovingRight;
-			}
-		}		
+		this.x += (this.isMovingRight) ? 2 : -2;
 	}
 
 	checkBulletsCollision(bullets: Bullet[], 
 		displayFunc: (text: string) => void): Bullet[]
 	{
-		let newBullets: Bullet[] = []
-		for (let i = 0; i < bullets.length; i++)
-		{
+		return bullets.filter((bullet: Bullet) => {
+			let result = true;
 			if (checkCollision(this.x, this.y + this.height,
 				this.width, 1,
-				bullets[i].x, bullets[i].y,
+				bullet.x, bullet.y,
 				this.width, this.height))
-			{
-				this.hp--;
-				if (this.hp <= 0)
 				{
-					displayFunc("You won!");
+					this.hp--;
+					if (this.hp <= 0)
+					{
+						displayFunc("You won!");
+					}
+					result = false;
 				}
-			} else {
-				newBullets.push(bullets[i]) 
-			}
-		}
-		return newBullets;
+				return result;
+		});
 	}
 
 	checkActorCollision(player: Player, 
@@ -110,8 +89,7 @@ export class Boss{
 			player.width, player.height))
 			{
 				player.hp = 0;
-				if (this.hp <= 0)
-				{
+				if (this.hp <= 0){
 					displayFunc("You've lost!");
 				}
 			}
