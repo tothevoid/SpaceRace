@@ -4,9 +4,9 @@ import { Player } from "./Player"
 import { Bullet } from "./Bullet";
 
 export class Boss{
-	private x: number;
-	private y: number;
-	private width: number;
+	x: number;
+	y: number;
+	width: number;
 	private height: number;
 	private hp: number;
 	private isMovingRight: boolean;
@@ -42,8 +42,13 @@ export class Boss{
 			imageIndex + 1 <= this.images.length){
 			this.canvas.image(this.images[imageIndex], this.x, this.y);
 		}
-		this.rocket.draw(this.hp);
-		this.rocket.move(player, this, this.canvasY);
+		if (this.rocket && this.hp >= 10){
+			this.rocket.draw();
+			this.rocket.move(player, this, this.canvasY);
+		} else {
+			this.rocket = null;
+		}
+		
 		this.drawHpBar();
 	}
 

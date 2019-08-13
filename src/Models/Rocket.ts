@@ -1,47 +1,39 @@
 import {checkCollision} from "../helper"
+import { Player } from "./Player";
+import { Boss } from "./Boss";
 
 export class Rocket{
-	private x: number;
-	private y: number;
-	private active: boolean;
-	private canvas: any;
-	private image: any;
 
- 	constructor(canvas, x, y, width, image)
-	{
-		this.x = x + (width/2) + 10.5;
-		this.y = y + 310;
-        this.active = true;
+	constructor(private canvas: any, private x: number,
+		private y: number, width: number, private image: any){
+		this.respawnRocket(x, y, width);
 		this.canvas = canvas;
 		this.image = image;
 	}
 
-	move(plr, boss, canvasY)
-	{
-		if (checkCollision(this.x, this.y+87, 21, 1, plr.x, plr.y, plr.width, plr.height))
-		{
-			this.x = boss.x+(boss.width/2)-10.5;
-			plr.hp--;
-			this.y = boss.y+310;
+	move(player: Player, boss: Boss, canvasY: number){
+		if (checkCollision(this.x, this.y + 87,
+			21, 1,
+			player.x, player.y,
+			player.width, player.height)){
+			player.hp--;
+			this.respawnRocket(boss.x, boss.y, boss.width);
+			return;
 		}
 
-		if (this.y > canvasY && this.active)
-		{
-			this.x = boss.x+(boss.width/2)+10.5;
-			this.y = boss.y+310;
+		if (this.y > canvasY){
+			this.respawnRocket(boss.x, boss.y, boss.width);
 			return;
-
 		}
 		this.y += 20;
 	}
 
-	draw(bossHp: number)
-	{
-		if (bossHp<=10)
-		{
-			this.active = false;
-			this.y = 1000;
-		}
-		this.canvas.image(this.image,this.x,this.y);
+	draw(){
+		this.canvas.image(this.image, this.x, this.y);
 	}
- } 
+	
+	private respawnRocket(bossX: number, bossY: number, bossWidth: number){
+		this.x = bossX + (bossWidth / 2) + 10.5;
+		this.y = bossY + 310;
+	}
+ }
