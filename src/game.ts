@@ -1,6 +1,7 @@
-import {Player} from './Models/Player';
-import {EnemyPlane} from "./Models/EnemyPlane"
-import {Boss} from "./Models/Boss"
+import { Boss } from "./Models/Boss"
+import { Bullet } from './Models/Bullet';
+import { EnemyPlane } from "./Models/EnemyPlane"
+import { Player } from './Models/Player';
 
 import p5 from "p5";
 import "p5/lib/addons/p5.dom" 
@@ -24,28 +25,29 @@ let canvasPosX = (screenWidth > canvasX) ?
 	(screenWidth - canvasX) / 2: screenWidth; 
 let canvasPosY = 0;
 
-const move = (canvas: any, plr: Player) =>
+const checkPlayerMove = (canvas: any, plr: Player) =>
 {
 	if (canvas.keyIsDown(canvas.LEFT_ARROW) && 
-		plr.x!=0) {
+		plr.x !== 0) {
 		plr.x -= 5;
 	}
 
 	else if (canvas.keyIsDown(canvas.RIGHT_ARROW) && 
-		plr.x != canvasX-plr.width) {
+		plr.x !== canvasX - plr.width) {
 		plr.x += 5;
 	}
 }
 
-const mainFunc = (sk) => {
+const mainFunc = (sk: any) => {
 	let active = true;
 	let ships: EnemyPlane[] = [];
 	let plr: Player;
+	let score = 0;
 	let boss: Boss
 	let bossAssets = [];
 	let enemyAssets = [];
 	let playerAssets = []
-	let rck;
+	let rck: any;
 
 	let hp, canvasBack, scoreElem;
 
@@ -66,29 +68,33 @@ const mainFunc = (sk) => {
 	{	
 		sk.image(canvasBack, 0, background1Y);
 		sk.image(canvasBack, 0, background2Y);
-		if (background1Y == 1020)
+		if (background1Y === 1020)
 			background1Y = -1680;
-		if (background2Y == 1020)
+		if (background2Y === 1020)
 			background2Y = -1680;
-		background1Y+=5;
-		background2Y+=5;
+		background1Y += 5;
+		background2Y += 5;
 	}
 
-	const displayMessage = (text) =>
+	const displayMessage = (text: string) =>
 	{
 		sk.noLoop();
-		scoreElem.innerHTML = "";
 		let div = sk.createDiv();
 		div.id("rect");
-		const size = (canvasY-350)/2;
-		div.position(canvasPosX+10, size);
+		const size = (canvasY - 350) / 2;
+		div.position(canvasPosX + 10, size);
 		let button = sk.createButton('Try again');
-		button.position(canvasPosX+50, size+200);
+		button.position(canvasPosX + 50, size + 200);
 		button.mousePressed(()=>location.reload());
 		button.id("btn");
 		let p = sk.createP(text);
 		p.id("title");
 		p.position(canvasPosX+50, size+50);
+	}	
+
+	const updateScore = (delta: number) => {
+		score += delta;
+		scoreElem.html(`Score: ` + score);
 	}
 
 	sk.setup = () => {
@@ -108,7 +114,7 @@ const mainFunc = (sk) => {
 				.map((_: number,index: number)=>
 					sk.loadImage(`${name}${index}.png`));	
 
-		document.addEventListener('visibilitychange', function(){
+		document.addEventListener('visibilitychange', ()=>{
 			if (active && timer)
 			{
 				clearInterval(timer);
@@ -133,43 +139,36 @@ const mainFunc = (sk) => {
 		sk.frameRate(60);
 	}
 	sk.draw = () => {
-		if (plr.hp == 0)
+		if (plr.hp === 0)
 			displayMessage("You've lost");
+		
+		//remove objects
 		ships = ships.filter((ship: EnemyPlane) => 
 			!(ship.deathVisibilityFrames <= 0 && ship.hp <= 0));
 		plr.bullets = plr.bullets.filter(bullet => bullet.y >= 0);
-		scrollBackground();
 		
-		for (var i = 0; i < plr.hp; i++) {
-			sk.image(hp, plr.hpX[i], 20);
-		}
-
-		const updateScore = (score: number) => {
-			scoreElem.html(`Score: ` + score);
-		}
-
-		move(sk, plr);
+		//update view
+		scrollBackground();
+		Array.apply(null, Array(plr.hp))
+			.forEach((_: number, index: number) => {
+			sk.image(hp, canvasX - 30 - index * 20, 20);
+		});
+		
+		//handle pressed arrow
+		checkPlayerMove(sk, plr);
 		if (!boss && shipsSpawned === 5)
 		{
 			boss = new Boss(sk, canvasX, canvasY, bossAssets, rck);
 			clearInterval(timer);
 		}
 		plr.enemyCollideCheck(ships, updateScore);
-		plr.bullets.forEach(function(element) {
-			element.draw();
-			element.move();
-		});
-
-		const onDead = () => {
-			plr.score += 250;
-			updateScore(plr.score);	
-		}
+		plr.bullets.forEach((bullet: Bullet) => 
+			bullet.draw());
 
 		ships.forEach((enemy: EnemyPlane) => {
 			enemy.draw();
-			enemy.updateCoords();
 			plr.bullets = enemy.
-				bulletsCollide(plr.bullets, onDead);
+				bulletsCollide(plr.bullets, updateScore);
 		});
 
 		plr.draw(); 
@@ -184,7 +183,7 @@ const mainFunc = (sk) => {
 		}
 	}
 	sk.keyPressed = () => {
-		if (sk.keyCode==32)
+		if (sk.keyCode === 32)
 		{
 			plr.shoot();
 		}

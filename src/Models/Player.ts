@@ -10,8 +10,6 @@ export class Player{
 	width: number;
 	height: number;
 	hp: number;
-	hpX: number[];
-	score: number;
 
 	constructor(private canvas: any,
 		canvasX: number,
@@ -23,12 +21,10 @@ export class Player{
 		this.width = 60;
 		this.height = 80;
 		this.hp = 3;
-		this.hpX = [canvasX - 70, canvasX - 50, canvasX - 30];
-        this.score = 0;
 		this.bullets = [];
 	}
 
-	enemyCollideCheck(ships: EnemyPlane[], updateScore: (score: number) => void)
+	enemyCollideCheck(ships: EnemyPlane[], updateScore: (delta: number) => void)
 	{
 		if (ships.length === 0) return;
 		ships.forEach((ship: EnemyPlane) => {
@@ -40,8 +36,7 @@ export class Player{
 	  		{
 	  			ship.hp = 0;
 		 		this.hp--;
-				this.score -= 100;
-				updateScore(this.score); 
+				updateScore(-100); 
 	  		}
 		})
 	}

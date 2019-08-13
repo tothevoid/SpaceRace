@@ -31,26 +31,27 @@ export class EnemyPlane{
 			imageIndex + 1 <= this.images.length){
 			this.canvas.image(this.images[imageIndex], this.x, this.y);
 		}
+		this.setNewCoordinates()
 	}
 
-	updateCoords()
+	setNewCoordinates()
 	{
 		this.y += 8;
 	}
 
-	bulletsCollide(bullets: any[], onDead: () => void): Bullet[]
+	bulletsCollide(bullets: any[], updateScore: (delta: number) => void): Bullet[]
 	{
 		return bullets.filter((bullet: Bullet) => {
 			var result = true;
 			if (checkCollision(bullet.x, bullet.y,
 				1, 1,
-				this.x, this.y + this.height-10,
+				this.x, this.y + this.height - 10,
 				this.width, 10))
 			{
 				this.hp--;
 				if (this.hp === 0)
 				{
-                    onDead();
+                    updateScore(250);
 				}
 				result = false;
 			}
