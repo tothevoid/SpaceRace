@@ -153,14 +153,18 @@ const mainFunc = (sk: any) => {
 			.forEach((_: number, index: number) => {
 			sk.image(hp, canvasX - 30 - index * 20, 20);
 		});
-		
-		//handle pressed arrow
-		checkPlayerMove(sk, plr);
+	
+		//spawn boss if it possible
 		if (!boss && shipsSpawned === 5)
 		{
 			boss = new Boss(sk, canvasX, canvasY, bossAssets, rck);
 			clearInterval(timer);
 		}
+
+		//handle pressed arrow
+		checkPlayerMove(sk, plr);
+		//player actions
+		plr.draw();
 		plr.enemyCollideCheck(ships, updateScore);
 		plr.bullets.forEach((bullet: Bullet) => 
 			bullet.draw());
@@ -169,9 +173,7 @@ const mainFunc = (sk: any) => {
 			enemy.draw();
 			plr.bullets = enemy.
 				bulletsCollide(plr.bullets, updateScore);
-		});
-
-		plr.draw(); 
+		}); 
 		
 		if (boss)
 		{

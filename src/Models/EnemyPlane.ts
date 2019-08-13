@@ -41,7 +41,8 @@ export class EnemyPlane{
 
 	bulletsCollide(bullets: any[], updateScore: (delta: number) => void): Bullet[]
 	{
-		return bullets.filter((bullet: Bullet) => {
+		return (this.hp <= 0) ? bullets: 
+		bullets.filter((bullet: Bullet) => {
 			var result = true;
 			if (checkCollision(bullet.x, bullet.y,
 				1, 1,
