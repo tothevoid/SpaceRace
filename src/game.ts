@@ -42,32 +42,32 @@ const mainFunc = (sk: any) => {
 	let active = true;
 	let ships: EnemyPlane[] = [];
 	let plr: Player;
-	let score = 0;
 	let boss: Boss
+	let score = 0;
 	let bossAssets = [];
 	let enemyAssets = [];
 	let playerAssets = []
 	let rck: any;
 
-	let hp, canvasBack, scoreElem;
+	let hpImage: any, canvasBackgroundImage: any, scoreBar: any;
 
 	//background y for scrolling
 	let background1Y = -330;
 	let background2Y = -1680;
 	
 	let shipsSpawned = 0;
-	let timer;
+	let timer: any;
 
 	const createEnemyPlane = () => {
 		let elm = new EnemyPlane(sk, canvasX, enemyAssets);
-		shipsSpawned+=1;
+		shipsSpawned += 1;
 		ships.push(elm);
 	}
 
 	const scrollBackground = () =>
 	{	
-		sk.image(canvasBack, 0, background1Y);
-		sk.image(canvasBack, 0, background2Y);
+		sk.image(canvasBackgroundImage, 0, background1Y);
+		sk.image(canvasBackgroundImage, 0, background2Y);
 		if (background1Y === 1020)
 			background1Y = -1680;
 		if (background2Y === 1020)
@@ -94,41 +94,38 @@ const mainFunc = (sk: any) => {
 
 	const updateScore = (delta: number) => {
 		score += delta;
-		scoreElem.html(`Score: ` + score);
+		scoreBar.html(`Score: ` + score);
 	}
 
 	sk.setup = () => {
 		var cnv = sk.createCanvas(canvasX,canvasY);
 		cnv.position(canvasPosX, canvasPosY);
 		
-		scoreElem = sk.createDiv('Score: 0');
-		scoreElem.position(canvasPosX+20, 20);
-		scoreElem.id = 'score';
-		scoreElem.style('color', 'white');
+		scoreBar = sk.createDiv('Score: 0');
+		scoreBar.position(canvasPosX + 20, 20);
+		scoreBar.id = 'score';
 
 		timer = setInterval(()=>
 			createEnemyPlane(), 2000);
 
 		const loadAssets = (name: string, quantity: number) => 
 			Array.apply(null, new Array(quantity))
-				.map((_: number,index: number)=>
+				.map((_: number,index: number) =>
 					sk.loadImage(`${name}${index}.png`));	
 
-		document.addEventListener('visibilitychange', ()=>{
+		document.addEventListener('visibilitychange', () => {
 			if (active && timer)
 			{
 				clearInterval(timer);
 				active = false;
-			}
-			else
-			{
+			} else {
 				timer = setInterval(()=>
 					createEnemyPlane(), 2000);
 			}
 		});
 
-		canvasBack = sk.loadImage('./assets/additional/canvas.jpg');
-		hp = sk.loadImage('./assets/additional/hp.png');
+		canvasBackgroundImage = sk.loadImage('./assets/additional/canvas.jpg');
+		hpImage = sk.loadImage('./assets/additional/hp.png');
 
 		bossAssets = loadAssets("./assets/boss/boss", 6);
 		enemyAssets = loadAssets("./assets/enemy/enemy", 3);
@@ -143,20 +140,18 @@ const mainFunc = (sk: any) => {
 			displayMessage("You've lost");
 		
 		//remove objects
-		ships = ships.filter((ship: EnemyPlane) => 
-			!(ship.deathVisibilityFrames <= 0 && ship.hp <= 0));
+		ships = ships.filter((ship: EnemyPlane) => !ship.isShouldBeRemoved());
 		plr.bullets = plr.bullets.filter(bullet => bullet.y >= 0);
 		
 		//update view
 		scrollBackground();
 		Array.apply(null, Array(plr.hp))
 			.forEach((_: number, index: number) => {
-			sk.image(hp, canvasX - 30 - index * 20, 20);
+			sk.image(hpImage, canvasX - 30 - index * 20, 20);
 		});
 	
 		//spawn boss if it possible
-		if (!boss && shipsSpawned === 5)
-		{
+		if (!boss && shipsSpawned === 5){
 			boss = new Boss(sk, canvasX, canvasY, bossAssets, rck);
 			clearInterval(timer);
 		}
@@ -175,8 +170,7 @@ const mainFunc = (sk: any) => {
 				bulletsCollide(plr.bullets, updateScore);
 		}); 
 		
-		if (boss)
-		{
+		if (boss){
 			boss.draw(plr);
 			boss.updateCoords(canvasX, displayMessage);
 			plr.bullets = boss
@@ -185,8 +179,7 @@ const mainFunc = (sk: any) => {
 		}
 	}
 	sk.keyPressed = () => {
-		if (sk.keyCode === 32)
-		{
+		if (sk.keyCode === 32){
 			plr.shoot();
 		}
 	}

@@ -1,4 +1,4 @@
-import {checkCollision} from "../helper"
+import { checkCollision } from "../helper"
 import { Bullet } from "./Bullet";
 
 export class EnemyPlane{
@@ -11,16 +11,14 @@ export class EnemyPlane{
 
 	constructor(private canvas: any,
 		canvasX: number,
-		private images: any[])
-	{
+		private images: any[]){
 		this.x = canvas.random(0, canvasX - this.width);
 		this.y = -1 * this.width;
 		this.hp = 8;
         this.deathVisibilityFrames = 60;
 	}
 
-	draw()
-	{
+	draw(){
 		let imageIndex = 2;
 		if (this.hp >= 5) imageIndex = 0;
 		else if (this.hp >= 1) imageIndex = 1;
@@ -34,24 +32,21 @@ export class EnemyPlane{
 		this.setNewCoordinates()
 	}
 
-	setNewCoordinates()
-	{
+	setNewCoordinates(){
 		this.y += 8;
 	}
 
-	bulletsCollide(bullets: any[], updateScore: (delta: number) => void): Bullet[]
-	{
+	bulletsCollide(bullets: any[],
+		updateScore: (delta: number) => void): Bullet[]{
 		return (this.hp <= 0) ? bullets: 
 		bullets.filter((bullet: Bullet) => {
 			var result = true;
 			if (checkCollision(bullet.x, bullet.y,
 				1, 1,
 				this.x, this.y + this.height - 10,
-				this.width, 10))
-			{
+				this.width, 10)){
 				this.hp--;
-				if (this.hp === 0)
-				{
+				if (this.hp === 0){
                     updateScore(250);
 				}
 				result = false;
@@ -59,4 +54,8 @@ export class EnemyPlane{
 			return result;
 		})
 	}
+
+	isShouldBeRemoved = () =>
+		this.deathVisibilityFrames <= 0 && this.hp <= 0
+	
 }

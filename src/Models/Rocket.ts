@@ -1,4 +1,4 @@
-import {checkCollision} from "../helper"
+import { checkCollision } from "../helper"
 import { Player } from "./Player";
 import { Boss } from "./Boss";
 

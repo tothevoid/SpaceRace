@@ -15,8 +15,7 @@ export class Boss{
 	constructor(private canvas: any,
 		canvasX: number,
 		public canvasY: number,
-		public images: any[], rocketImage: any)
-	{
+		public images: any[], rocketImage: any){
 		this.x = canvasX / 2;
 		this.y = 20;
         this.width = 168;
@@ -28,8 +27,7 @@ export class Boss{
 		this.images = images;
     }
 
-	draw(player: Player)
-	{
+	draw(player: Player){
 		let imageIndex = 0
 	
 		if (this.hp > 80) imageIndex = 1;
@@ -52,8 +50,8 @@ export class Boss{
 		this.drawHpBar();
 	}
 
-	updateCoords(canvasWidth: number, displayFunc: (text: string)=>void)
-	{
+	updateCoords(canvasWidth: number, 
+		displayFunc: (text: string)=>void){
 		if (this.y > this.canvasY)
 			displayFunc("The boss has ran out. You won!");
 
@@ -65,18 +63,15 @@ export class Boss{
 	}
 
 	checkBulletsCollision(bullets: Bullet[], 
-		displayFunc: (text: string) => void): Bullet[]
-	{
+		displayFunc: (text: string) => void): Bullet[]{
 		return bullets.filter((bullet: Bullet) => {
 			let result = true;
 			if (checkCollision(this.x, this.y + this.height,
 				this.width, 1,
 				bullet.x, bullet.y,
-				this.width, this.height))
-				{
+				this.width, this.height)){
 					this.hp--;
-					if (this.hp <= 0)
-					{
+					if (this.hp <= 0){
 						displayFunc("You won!");
 					}
 					result = false;
@@ -86,13 +81,11 @@ export class Boss{
 	}
 
 	checkActorCollision(player: Player, 
-		displayFunc: (text: string) => void)
-	{
+		displayFunc: (text: string) => void){
 		if (checkCollision(this.x, this.y + this.height, 
 			this.width, 1,
 			player.x, player.y,
-			player.width, player.height))
-			{
+			player.width, player.height)){
 				player.hp = 0;
 				if (this.hp <= 0){
 					displayFunc("You've lost!");

@@ -1,5 +1,5 @@
-import {Bullet} from './Bullet'
-import {checkCollision} from "../helper"
+import { Bullet } from './Bullet'
+import { checkCollision } from "../helper"
 import { EnemyPlane } from './EnemyPlane';
 
 export class Player{
@@ -14,26 +14,24 @@ export class Player{
 	constructor(private canvas: any,
 		canvasX: number,
 		canvasY: number, 
-		private images: any[])
-	{
-		this.x = canvasX/2;
-		this.y = canvasY-100;
+		private images: any[]){
+		this.x = canvasX / 2;
+		this.y = canvasY - 100;
 		this.width = 60;
 		this.height = 80;
 		this.hp = 3;
 		this.bullets = [];
 	}
 
-	enemyCollideCheck(ships: EnemyPlane[], updateScore: (delta: number) => void)
-	{
+	enemyCollideCheck(ships: EnemyPlane[], 
+		updateScore: (delta: number) => void){
 		if (ships.length === 0) return;
 		ships.forEach((ship: EnemyPlane) => {
 			if (ship.hp <= 0) return;
 			if (checkCollision(ship.x, ship.y,
 				ship.width, ship.height,
 				this.x, this.y,
-				this.width, this.height))
-	  		{
+				this.width, this.height)){
 	  			ship.hp = 0;
 		 		this.hp--;
 				updateScore(-100); 
@@ -41,8 +39,7 @@ export class Player{
 		})
 	}
 
-	draw()
-	{
+	draw(){
 		const imageIndex = 3 - this.hp;
 		if (imageIndex >= 0 && this.images &&
 			imageIndex + 1 <= this.images.length){
@@ -50,8 +47,7 @@ export class Player{
 		}
 	}
 
-	shoot()
-	{
+	shoot(){
 		this.bullets.push(
 			new Bullet(this.canvas, this.x + 5, this.y - 4));
 		this.bullets.push(
