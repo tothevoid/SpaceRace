@@ -98,12 +98,12 @@ const mainFunc = (sk: any) => {
 	}
 
 	sk.setup = () => {
-		var cnv = sk.createCanvas(canvasX,canvasY);
+		let cnv = sk.createCanvas(canvasX,canvasY);
 		cnv.position(canvasPosX, canvasPosY);
 		
 		scoreBar = sk.createDiv('Score: 0');
 		scoreBar.position(canvasPosX + 20, 20);
-		scoreBar.id = 'score';
+		scoreBar.style("color", "white")
 
 		timer = setInterval(()=>
 			createEnemyPlane(), 2000);
@@ -136,6 +136,7 @@ const mainFunc = (sk: any) => {
 		sk.frameRate(60);
 	}
 	sk.draw = () => {
+		console.log(sk.getFramerate())
 		if (plr.hp === 0)
 			displayMessage("You've lost");
 		

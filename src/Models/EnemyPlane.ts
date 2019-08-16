@@ -40,7 +40,7 @@ export class EnemyPlane{
 		updateScore: (delta: number) => void): Bullet[]{
 		return (this.hp <= 0) ? bullets: 
 		bullets.filter((bullet: Bullet) => {
-			var result = true;
+			let result = true;
 			if (checkCollision(bullet.x, bullet.y,
 				1, 1,
 				this.x, this.y + this.height - 10,

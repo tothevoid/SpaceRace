@@ -1,6 +1,6 @@
 body {
-  background: url("/assets//additional/back.jpg");
-  background-repeat: no-repeat;
+    background: url("/assets//additional/back.jpg");
+    background-repeat: no-repeat;
 }
 
 #btn{
@@ -40,7 +40,4 @@ body {
 }
 #img{
 	background-repeat: repeat-y;
-}
-#score{
-    color:white
 }
